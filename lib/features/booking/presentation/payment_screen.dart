@@ -88,42 +88,47 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                       final subtotal = (days > 0 ? days : 1) * pricePerDay;
                       final feeRate = hasReducedFees ? 0.05 : 0.10; // 5% for Premium, 10% for Basic
                       final platformFee = subtotal * feeRate;
-                      final totalAmount = subtotal + platformFee;
+                      
+                      // Delivery Charge Logic (Standard: ₹50, Premium: Free)
+                      final deliveryCharge = hasReducedFees ? 0.0 : 50.0;
+                      
+                      final totalAmount = subtotal + platformFee + deliveryCharge;
 
                       return Column(
                         children: [
+                          // Rental Cost
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text('Rental Cost', style: TextStyle(color: Colors.black54)),
+                              Text('Rental Cost', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(itemTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              Text('\₹${subtotal.toStringAsFixed(0)}'),
+                              Text(itemTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                              Text('\₹${subtotal.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
                             ],
                           ),
-                          const Divider(height: 24),
+                          const Divider(height: 24, thickness: 1),
                           
-                          // Fee Section
+                          // Platform Fee
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
                                 children: [
-                                  const Text('Platform Fee', style: TextStyle(color: Colors.black54)),
+                                  const Text('Platform Fee', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
                                   if (hasReducedFees)
                                     Container(
                                       margin: const EdgeInsets.only(left: 8),
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: Colors.amber.shade100,
+                                        color: Colors.green.shade100,
                                         borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(color: Colors.amber),
+                                        border: Border.all(color: Colors.green),
                                       ),
-                                      child: const Text('50% OFF', style: TextStyle(fontSize: 10, color: Colors.orange)),
+                                      child: const Text('50% OFF', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
                                     ),
                                 ],
                               ),
@@ -131,32 +136,44 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
                                 '\₹${platformFee.toStringAsFixed(0)}',
                                 style: TextStyle(
                                   color: hasReducedFees ? Colors.green : Colors.black,
-                                  fontWeight: hasReducedFees ? FontWeight.bold : FontWeight.normal,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
                           ),
-                          if (!hasReducedFees)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4.0),
-                              child: Row(
+                          const Divider(height: 24, thickness: 1),
+
+                          // Delivery Charges
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
                                 children: [
-                                  const Icon(Icons.info_outline, size: 14, color: Colors.blue),
-                                  const SizedBox(width: 4),
-                                  GestureDetector(
-                                    onTap: () {
-                                      // TODO: Navigate to subscription
-                                    },
-                                    child: const Text(
-                                      'Save with Premium',
-                                      style: TextStyle(color: Colors.blue, fontSize: 12, decoration: TextDecoration.underline),
+                                  const Text('Delivery Charges', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w600)),
+                                  if (deliveryCharge == 0)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green.shade100,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: Colors.green),
+                                      ),
+                                      child: const Text('FREE', style: TextStyle(fontSize: 10, color: Colors.green, fontWeight: FontWeight.bold)),
                                     ),
-                                  ),
                                 ],
                               ),
-                            ),
+                              Text(
+                                '\₹${deliveryCharge.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  color: deliveryCharge == 0 ? Colors.green : Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Divider(height: 24, thickness: 1),
 
-                          const Divider(height: 24),
 
                           // Total
                           Row(

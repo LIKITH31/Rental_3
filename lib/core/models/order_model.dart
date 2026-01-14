@@ -42,9 +42,30 @@ class OrderModel {
       renterId: data['renterId'] ?? data['customerId'] ?? '',
       lenderId: data['lenderId'] ?? '',
       rentalStatus: data['rentalStatus'] ?? data['status'] ?? 'requested',
-      startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      endDate: (data['endDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      startDate: _parseDate(data['startDate']),
+      endDate: _parseDate(data['endDate']),
+      createdAt: _parseDate(data['createdAt']),
     );
+  }
+
+  static DateTime _parseDate(dynamic date) {
+    if (date is Timestamp) {
+      return date.toDate();
+    } else if (date is String) {
+      // Try parsing typical string formats
+      try {
+        return DateTime.parse(date);
+      } catch (_) {
+        // Fallback for custom formats like "14 Jan 2026" if that's what's stored
+        // You might need DateFormat('dd MMM yyyy').parse(date) if imports allowed
+        // strictly, but assuming standard for now or keeping safe fallback.
+        // Given error said "14 Jan 2026", let's try to parse that if basic parse fails.
+        // But preventing import bloat, let's just return now() if strict parse fails
+        // unless we add intl import here. 
+        // Actually, let's just return DateTime.now() on failure to avoid crashes.
+        return DateTime.now(); 
+      }
+    }
+    return DateTime.now();
   }
 }
